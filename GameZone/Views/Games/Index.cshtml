@@ -1,0 +1,107 @@
+﻿@model IEnumerable<Game>
+@{
+    ViewData["Title"] = "Games List";
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning mt-4">
+
+        <h4 class="alert-heading">No Games!</h4>
+        <p class="mb-0"> No Gat Added Yet. </p>
+    </div>
+}
+else
+{
+
+    <div class="mt-5">
+        <table class="table table-bordered border-primary">
+            <tbody>
+                @foreach(var game in Model)
+                {
+                    <tr class="border-1 border-success ">
+                        <td>
+                            <div class="d-flex">
+                                <div style="height:130px;">
+                                    <img src="@($"{SettingFile.pathImage}/{game.icon}")" style="width:90px;height:130px;" alt="@game.Name"/>
+                                </div>
+                                <div class=" flex-md-column h-100 pt-3" style="margin-left:100px;">
+                                    <h5 class="text-muted">@game.Name</h5>
+                                    <h5>@game.Category.Name</h5>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="justify-content-end">
+                            <div class="d-flex justify-content-end mt-5">
+                               <a class="btn btn-warning m-2" asp-action="Edit" asp-route-id="@game.Id">Edit</a>
+                                <a class="btn btn-danger m-2 js-delete" data-id="@game.Id">Delete</a>
+
+                           </div>
+
+                        </td>
+                    </tr>
+
+                    
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section  Scripts{
+    <script>
+        $(document).ready(function(){
+            $(".js-delete").on('click',function(){
+                var btn = $(this)
+                const swalWithBootstrapButtons = Swal.mixin({
+                      customClass: {
+                        confirmButton: 'btn btn-danger mx-2',
+                        cancelButton: 'btn btn-primary'
+                      },
+                      buttonsStyling: false
+                    })
+                swalWithBootstrapButtons.fire({
+                    title: 'Are you sure to delete this game?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                         $.ajax({
+                    url : '/Games/delete/'+btn.data('id'),
+                    method : "DELETE" ,
+                    success : function(){
+                          
+                        swalWithBootstrapButtons.fire(
+                            'Deleted!',
+                            'Your Games has been deleted Succefuly.',
+                            'success'
+                        )
+                        btn.parents('tr').fadeOut();
+                        
+                    } ,
+                    error :function(){
+                                swalWithBootstrapButtons.fire(
+                                    'Oooops!',
+                                    'there is somthing wrong.',
+                                    'error'
+                                )
+                    }
+
+                })
+                        
+                    }
+                })
+
+               
+
+                
+                
+                console.log();
+            })
+        })
+    </script>
+}
